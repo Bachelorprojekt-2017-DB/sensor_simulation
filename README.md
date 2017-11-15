@@ -6,6 +6,6 @@
 Run:
 
 - install [python3](https://www.python.org)
-- install [pygtf](https://github.com/jarondl/pygtfs)
+- install [pygtfs](https://github.com/jarondl/pygtfs)
   - ``pip3 install pygtfs``
 - execute example ``python3 src/simulation.py``

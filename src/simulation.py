@@ -8,13 +8,13 @@ schedule = pygtfs.Schedule(DB_NAME)
 database_location = os.path.join(os.path.dirname(__file__),
                                      "DB_NAME")
 data_location = os.path.join(os.path.dirname(__file__),
-                                     "2017")
+                                     "../data")
 
 if(os.path.isfile(database_location)):
+    print("Database detected\n")
+else:
     print("Creating new database!\n")
     pygtfs.overwrite_feed(schedule, data_location)
-else:
-    print("Database detected\n")
 
 example_route = schedule.routes[5]
 example_trip = example_route.trips[0]
