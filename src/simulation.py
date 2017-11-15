@@ -3,18 +3,18 @@ import pygtfs
 
 DB_NAME = "db_fernstrecke"
 
-schedule = pygtfs.Schedule(DB_NAME)
-
 database_location = os.path.join(os.path.dirname(__file__),
-                                     "DB_NAME")
+                                     DB_NAME)
 data_location = os.path.join(os.path.dirname(__file__),
                                      "../data")
 
 if(os.path.isfile(database_location)):
-    print("Database detected\n")
+    schedule = pygtfs.Schedule(database_location)
+    print("Database detected at", database_location,"\n")
 else:
-    print("Creating new database!\n")
-    pygtfs.overwrite_feed(schedule, data_location)
+    schedule = pygtfs.Schedule(database_location)
+    pygtfs.append_feed(schedule, data_location)
+    print("Created new database at", database_location,"\n")
 
 example_route = schedule.routes[5]
 example_trip = example_route.trips[0]
