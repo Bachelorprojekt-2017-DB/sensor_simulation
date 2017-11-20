@@ -1,11 +1,9 @@
 import os
 import sys
-from Data import *
-from Graph import *
 import random
 import time
 import pygtfs
-
+from train import Train
 sys.path.insert(0, 'util')
 
 from graph import Graph
@@ -81,7 +79,7 @@ def setUpGraph():
 	trafficNetwork = Graph()
 	
 	for s in schedule.stops:
-		trafficNetwork.get_or_create_vertex(s.stop_id, s.stop_name)
+		trafficNetwork.get_or_create_station(s.stop_id, s.stop_name)
 	
 	
 #-------------------------------------------------------------MAIN-------------------------------------------------------------
