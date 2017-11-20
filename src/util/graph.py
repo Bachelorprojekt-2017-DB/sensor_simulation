@@ -76,8 +76,6 @@ class _Station(_TrainLocation):
 
 # private Section class for Graph, only instantiate over Graph class
 class _Section(_TrainLocation):
-data = ""
-
 	def __init__(self, section_id, first_station, second_station):
 		self.first_station = first_station
 		self.second_station = second_station
@@ -86,6 +84,6 @@ data = ""
 	def isValid(self):
 		return False if (self.first_stop_id is None or self.second_stop_id is None) else True
 
-	def inform_trains(self):
+	def informTrains(self):
 		for train in self.current_trains:
 			train.collected_data[section_id] = time.gmtime(time.time()) # TODO: replace with current step
