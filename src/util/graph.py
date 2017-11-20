@@ -1,3 +1,7 @@
+# Graph class
+# Use get_or_create_vertex(stop_id, stop_name) for vertices
+# Use get_or_create_edge(start_stop_id, end_stop_id) for edges
+
 class Graph:
 	def __init__(self):
 		self.edges = []
