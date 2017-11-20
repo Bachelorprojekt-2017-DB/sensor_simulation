@@ -19,10 +19,11 @@ else:
 example_route = schedule.routes[5]
 example_trip = example_route.trips[0]
 stops = schedule.stops_by_id
-stop1 = example_trip.stop_times[-1]
-stop2 = example_trip.stop_times[-2]
+stop1 = example_trip.stop_times[1]
+stop2 = example_trip.stop_times[2]
 
 print(example_route.route_long_name, "\n")
+print(example_trip.stop_times[1].stop_sequence)
 print("Halt 1: ")
 print(stops(stop1.stop_id), "\n")
 print(stop1.arrival_time, "\n")
