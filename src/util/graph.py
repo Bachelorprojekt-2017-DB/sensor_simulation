@@ -6,6 +6,7 @@ class Graph:
 	def __init__(self):
 		self.edges = []
 		self.vertices = []
+		self.highest_id = 0
 
 	def get_or_create_vertex(stop_id, stop_name):
 		vertex = self.vertex(stop_id)
@@ -26,7 +27,8 @@ class Graph:
 	def _get_or_create_edge(first_vertex, second_vertex):
 		edge = self.edge(first_vertex, second_vertex)
 		if not edge.is_valid():
-			edge = _Edge(first_vertex, second_vertex)
+			edge = _Edge(self.highest_id, first_vertex, second_vertex)
+			highest_id += 1
 			first_vertex.add_incident(second_vertex, edge)
 			second_vertex.add_incident(first_vertex, edge)
 			self.edges.append(edge)
