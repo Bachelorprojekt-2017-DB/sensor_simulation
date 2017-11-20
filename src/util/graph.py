@@ -44,7 +44,7 @@ class Graph:
 		for e in edges:
 			if (e.first_vertex == start_stop_id and e.second_vertex == end_stop_id or
 				e.second_vertex == start_stop_id and e.first_vertex == end_stop_id):
-			return e
+				return e
 		return Edge()
 
 # private Vertex class for Graph, only instantiate over Graph class
