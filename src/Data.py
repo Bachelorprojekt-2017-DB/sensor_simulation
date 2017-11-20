@@ -19,10 +19,3 @@ class Train:
 	
 	def __init__(self, trip):
 		self.trip = trip
-	
-	def getPosition(self, currentTime):
-		
-		
-class Trip:
-	
-	tripId = -1
