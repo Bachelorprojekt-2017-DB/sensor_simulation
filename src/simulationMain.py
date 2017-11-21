@@ -1,92 +1,56 @@
 import os
 import sys
-import random
-import time
 import pygtfs
-from train import Train
-sys.path.insert(0, 'util')
+import time
+from util.graph import Graph
 
-from graph import Graph
+class Simulation:
+	gtfs_path = os.path.join(os.path.dirname(__file__), "..", "data")
 
-DB_NAME = "db_fernstrecke"
-schedule = ""
-stationsContainingTrains = ""
-eventQueue = dict()
-trains = dict()
-trafficNetwork = ""
-sortedTrips = {}
+	def createDatabaseFromGTFS(self, path):
+		schedule = pygtfs.Schedule(":memory:") # in-memory database, can also be written to a file
+		pygtfs.append_feed(schedule, path)
+		return schedule
 
-def setUpDatabase():
-	database_location = os.path.join(os.path.dirname(__file__), DB_NAME)
-	data_location = os.path.join(os.path.dirname(__file__), "../data")
-	
-	if(os.path.isfile(database_location)):
-		global schedule 
-		schedule = pygtfs.Schedule(database_location)
-		print("Database detected at", database_location,"\n")
-	else:
-		global schedule
-		schedule = pygtfs.Schedule(database_location)
-		pygtfs.append_feed(schedule, data_location)
-		print("Created new database at", database_location,"\n")
+	def createSections(self, graph, schedule):
+		n = 1
+		r = len(schedule.routes)
+		for route in schedule.routes:
+			sys.stdout.write('\rRoute {} from {}'.format(n, r))
+			sys.stdout.flush()
+			n += 1
+			for trip in route.trips:
+				stops = []
+				for stop_time in trip.stop_times:
+					stops.append([stop_time.stop_sequence, stop_time.stop_id])
+				stops = sorted(stops, key = lambda x : (x[0]))
+				for i in range(0, len(stops) - 2):
+					graph.getOrCreateSection(stops[i][1], stops[i+1][1])
 
-def parseStations():
-	if (schedule is ""):
-		print "No schedule existing"
-		return
-	else:
-		return
 
-def isNoNumber(s):
-    try:
-        int(s)
-        return False
-    except ValueError:
-        return True
-	
-def prepareEventQueue():
-	twoDayTrips = set()
-	
-	stops = schedule.stop_times
-	
-	for st in stops:
-		arrTime = str (st.arrival_time)
-		arrTime = arrTime[:len(arrTime) - 3].replace(":","")
-		
-		if (isNoNumber(arrTime)):
-			twoDayTrips.add(st.trip_id)
-	
-	cleanStops = set()
-	
-	for st in stops:
-		if (st.trip_id not in twoDayTrips):
-			cleanStops.add(st)
-			
-	for st in cleanStops:
-		key = str (st.arrival_time)
-		key = key[:len(key) - 3].replace(":","")
-		
-		if key in eventQueue:
-			eventQueue[key].append(st)
-		else:
-			eventQueue[key] = [st]
-			
-def initializeTrainsAndTrips():
-	for t in schedule.trips:
-		trains[t.trip_id] = Train(t)
-		
-def setUpGraph():
-	trafficNetwork = Graph()
-	
-	for s in schedule.stops:
-		trafficNetwork.get_or_create_station(s.stop_id, s.stop_name)
-	
-	
-#-------------------------------------------------------------MAIN-------------------------------------------------------------
+	def createStations(self, graph, stops):
+			for stop in stops:
+				graph.getOrCreateStation(stop.stop_id)
+
+	def createGraph(self, schedule):
+		graph = Graph()
+		self.createStations(graph, schedule.stops)
+		self.createSections(graph, schedule)
+		print('\nStations: {}, Sections: {}'.format(len(graph.stations), len(graph.sections)))
+		return graph
+
+	def createTrainsFromTrips(self, schedule):
+		print('Todo')
+
+	def main(self):
+		# setup simulation from gtfs file
+		now = time.time()
+		schedule = self.createDatabaseFromGTFS(self.gtfs_path)
+		print('Creating Database took {} seconds'.format(time.time() - now))
+		now = time.time()
+		graph = self.createGraph(schedule)
+		print('Creating Graph took {} seconds'.format(time.time() - now))
+		trains = self.createTrainsFromTrips(schedule)
 
 if __name__ == "__main__":
-	setUpDatabase()
-	prepareEventQueue()
-	initializeTrains()
-	
-	print "simulation finished"
+	Simulation().main()
