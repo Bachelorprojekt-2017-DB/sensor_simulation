@@ -3,12 +3,16 @@ import sys
 import pygtfs
 import time
 from util.graph import Graph
+from train import Train
 
 class Simulation:
-	gtfs_path = os.path.join(os.path.dirname(__file__), "..", "data")
+	gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+	event_queue = []
+	trains = []
+	traffic_network = ''
 
 	def createDatabaseFromGTFS(self, path):
-		schedule = pygtfs.Schedule(":memory:") # in-memory database, can also be written to a file
+		schedule = pygtfs.Schedule(':memory:') # in-memory database, can also be written to a file
 		pygtfs.append_feed(schedule, path)
 		return schedule
 
@@ -40,7 +44,9 @@ class Simulation:
 		return graph
 
 	def createTrainsFromTrips(self, schedule):
-		print('Todo')
+		for routes in schedule.routes:
+			for trip in routes.trips:
+				self.trains.append(Train(trip))
 
 	def main(self):
 		# setup simulation from gtfs file
@@ -50,7 +56,35 @@ class Simulation:
 		now = time.time()
 		graph = self.createGraph(schedule)
 		print('Creating Graph took {} seconds'.format(time.time() - now))
+		now = time.time()
 		trains = self.createTrainsFromTrips(schedule)
+		print('Creating Trains took {} seconds'.format(time.time() - now))
 
-if __name__ == "__main__":
+	# def prepareEventQueue():
+	# 	twoDayTrips = set()
+	# 	stops = schedule.stop_times
+		
+	# 	for st in stops:
+	# 		arrTime = str (st.arrival_time)
+	# 		arrTime = arrTime[:len(arrTime) - 3].replace(":","")
+			
+	# 		if (isNoNumber(arrTime)):
+	# 			twoDayTrips.add(st.trip_id)
+		
+	# 	cleanStops = set()
+		
+	# 	for st in stops:
+	# 		if (st.trip_id not in twoDayTrips):
+	# 			cleanStops.add(st)
+				
+	# 	for st in cleanStops:
+	# 		key = str (st.arrival_time)
+	# 		key = key[:len(key) - 3].replace(":","")
+			
+	# 		if key in eventQueue:
+	# 			eventQueue[key].append(st)
+	# 		else:
+	# 			eventQueue[key] = [st]
+
+if __name__ == '__main__':
 	Simulation().main()
