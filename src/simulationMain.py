@@ -7,16 +7,14 @@ from train import Train
 
 class Simulation:
 	gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
-	event_queue = []
 	trains = []
-	traffic_network = ''
 
-	def createDatabaseFromGTFS(self, path):
+	def create_database_from_gtfs(self, path):
 		schedule = pygtfs.Schedule(':memory:') # in-memory database, can also be written to a file
 		pygtfs.append_feed(schedule, path)
 		return schedule
 
-	def createSections(self, graph, schedule):
+	def create_sections(self, graph, schedule):
 		n = 1
 		r = len(schedule.routes)
 		for route in schedule.routes:
@@ -29,36 +27,43 @@ class Simulation:
 					stops.append([stop_time.stop_sequence, stop_time.stop_id])
 				stops = sorted(stops, key = lambda x : (x[0]))
 				for i in range(0, len(stops) - 2):
-					graph.getOrCreateSection(stops[i][1], stops[i+1][1])
+					graph.get_or_create_section(stops[i][1], stops[i+1][1])
 
 
-	def createStations(self, graph, stops):
+	def create_stations(self, graph, stops):
 			for stop in stops:
-				graph.getOrCreateStation(stop.stop_id)
+				graph.get_or_create_station(stop.stop_id)
 
-	def createGraph(self, schedule):
+	def create_graph(self, schedule):
 		graph = Graph()
-		self.createStations(graph, schedule.stops)
-		self.createSections(graph, schedule)
+		self.create_stations(graph, schedule.stops)
+		self.create_sections(graph, schedule)
 		print('\nStations: {}, Sections: {}'.format(len(graph.stations), len(graph.sections)))
 		return graph
 
-	def createTrainsFromTrips(self, schedule):
+	def create_trains_from_trips(self, schedule):
 		for routes in schedule.routes:
 			for trip in routes.trips:
 				self.trains.append(Train(trip))
 
+	def create_event_queue(self):
+		print('TODO')
+
 	def main(self):
 		# setup simulation from gtfs file
 		now = time.time()
-		schedule = self.createDatabaseFromGTFS(self.gtfs_path)
+		schedule = self.create_database_from_gtfs(self.gtfs_path)
 		print('Creating Database took {} seconds'.format(time.time() - now))
 		now = time.time()
-		graph = self.createGraph(schedule)
-		print('Creating Graph took {} seconds'.format(time.time() - now))
+		graph = self.create_graph(schedule)
+		print('Creating Graph object took {} seconds'.format(time.time() - now))
 		now = time.time()
-		trains = self.createTrainsFromTrips(schedule)
-		print('Creating Trains took {} seconds'.format(time.time() - now))
+		self.trains = self.create_trains_from_trips(schedule)
+		print('Creating Train objects took {} seconds'.format(time.time() - now))
+		now = time.time()
+		event_queue = self.create_event_queue()
+		print('Creating event queue took {} seconds'.format(time.time() - now))
+
 
 	# def prepareEventQueue():
 	# 	twoDayTrips = set()
