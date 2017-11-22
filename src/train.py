@@ -1,7 +1,7 @@
 class Train:	
 	collectedData = {} # Hash: section_id -> timestamp
-	arrival = [] # List of [arrival time, stop id]
-	departure = [] # List of [departure time, stop id]
+	arrivals = [] # List of [arrival time, stop id]
+	departures = [] # List of [departure time, stop id]
 	on_section = [] # List of [departure pair, arrival pair] from above
 
 	def stop_time_by_seq(self, seq):
@@ -16,20 +16,21 @@ class Train:
 		stops.sort()
 
 		length = len(stops)
-		self.arrival = self.departure = list(range(length))
+		self.arrivals = list(range(length))
+		self.departures = list(range(length))
 		self.on_section = list(range(length - 1))
 
 		seq = stops[0]
 		stop_time = self.stop_time_by_seq(seq)
-		self.arrival[0] = [stop_time.arrival_time, stop_time.stop_id]
-		self.departure[0] = [stop_time.departure_time, stop_time.stop_id]
+		self.arrivals[0] = [stop_time.arrival_time, stop_time.stop_id]
+		self.departures[0] = [stop_time.departure_time, stop_time.stop_id]
 
 		for i in range(1, len(stops) - 1):
 			seq = stops[i]
 			stop_time = self.stop_time_by_seq(seq)
-			self.arrival[i] = [stop_time.arrival_time, stop_time.stop_id]
-			self.departure[i] = [stop_time.departure_time, stop_time.stop_id]
-			self.on_section[i-1] = [self.departure[i - 1], self.arrival[i]]
+			self.arrivals[i] = [stop_time.arrival_time, stop_time.stop_id]
+			self.departures[i] = [stop_time.departure_time, stop_time.stop_id]
+			self.on_section[i-1] = [self.departures[i - 1], self.arrivals[i]]
 
 	def __init__(self, trip):
 		self.trip = trip
