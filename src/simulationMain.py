@@ -10,7 +10,7 @@ from train import Train
 class EventTypes(Enum):
 	UNDEFINED = 0
 	ARRIVAL = 1
-	DEPARTUE = 2
+	DEPARTURE = 2
 	NOTIFY_ON_SECTION = 3
 	ON_SECTION = 4
 
@@ -84,10 +84,10 @@ class Simulation:
 			if train == None:
 				return None
 			actor = train
-		elif event_type == EventTypes.DEPARTUE:
-			actor = self.graph.get_or_create_station(train_location_id)
+		elif event_type == EventTypes.DEPARTURE:
+			actor = self.graph.get_station_by_id(train_location_id)
 		elif event_type == EventTypes.ON_SECTION:
-			actor = self.graph.get_or_create_section(train_location_id)
+			actor = self.graph.get_section_by_id(train_location_id)
 		else:
 			return None
 		event = Event(event_type, time, actor)
@@ -101,12 +101,11 @@ class Simulation:
 			train = self.trains[i]
 			for i in range(len(train.arrivals)):
 				arrival = train.arrivals[i]
-				print(arrival)
 				station = self.graph.get_or_create_station(arrival[1])
 				self.create_event(EventTypes.ARRIVAL, arrival[0], train, station)
 			for departure in train.departures:
 				station = self.graph.get_or_create_station(departure[1])
-				self.create_event(EventTypes.DEPARTUE, departure[0], station)
+				self.create_event(EventTypes.DEPARTURE, departure[0], station)
 			for section in train.on_section:
 				sectiond = self.graph.get_or_create_section(section[0][1], section[1][1])
 				time = section[0][0] + datetime.timedelta(minutes = 1)
