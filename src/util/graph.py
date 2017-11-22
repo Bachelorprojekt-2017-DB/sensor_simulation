@@ -22,7 +22,7 @@ class Graph:
 				return station
 		return _Station()		
 
-	def get_or_create_station(self, stop_id, stop_name = ""):
+	def get_or_create_station(self, stop_id, stop_name = ''):
 		station = self._station(stop_id)
 		if not station.is_valid():
 			station = _Station(stop_id, stop_name)
@@ -76,7 +76,7 @@ class _Station():
 	def add_incident(self, station, section):
 		self.incidents[station] = section
 
-	def notify(self, train):
+	def notify(self, train, time):
 		train.update(self.collected_data)
 
 	def update(self, data):
@@ -85,6 +85,9 @@ class _Station():
 				continue
 			elif self.collected_data[i] < data[i]:
 				self.collected_data[i] = data[i] 
+
+	def __str__(self):
+		return 'Station {}: {}'.format(self.stop_id, self.stop_name)
 
 # private Section class for Graph, only instantiate over Graph class
 class _Section():
@@ -96,12 +99,11 @@ class _Section():
 	def is_valid(self):
 		return False if (self.first_station is None or self.second_station is None) else True
 
-	def notify(self, train):
-		train.update(self.collected_data)
+	def notify(self, train, iteration):
+		train.update([self.section_id], iteration)
 
 	def update(self, data):
-		for i in range(len(data) - 1):
-			if data[i] == None:
-				continue
-			elif self.collected_data[i] < data[i]:
-				self.collected_data[i] = data[i] 
+		pass
+
+	def __str__(self):
+		return 'Section {}: {}, {}'.format(self.section_id, self.first_station, self.second_station)

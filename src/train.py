@@ -32,7 +32,7 @@ class Train:
 			self.departures[i] = [stop_time.departure_time, stop_time.stop_id]
 			self.on_section[i-1] = [self.departures[i - 1], self.arrivals[i]]
 
-	def notify(self, train_location):
+	def notify(self, train_location, time):
 		train_location.update(self.collected_data)
 
 	def update(self, data):

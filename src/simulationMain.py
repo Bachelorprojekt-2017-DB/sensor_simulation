@@ -26,7 +26,7 @@ class Event:
 		self.sender = sender
 		self.receiver = receiver
 	
-	def call():
+	def call(self):
 		self.sender.notify(self.receiver, self.iteration)
 
 class Simulation:
@@ -66,7 +66,7 @@ class Simulation:
 
 	def create_stations(self, stops):
 			for stop in stops:
-				self.graph.get_or_create_station(stop.stop_id)
+				self.graph.get_or_create_station(stop.stop_id, stop.stop_name)
 
 	def create_graph(self, schedule):
 		self.graph = Graph()
@@ -115,15 +115,15 @@ class Simulation:
 		self.event_queue = [[] for n in range(total_iterations)]
 
 		for train in self.trains:
-			for arrival train.arrivals:
+			for arrival in train.arrivals:
 				station = self.graph.get_or_create_station(arrival[1])
 				self.create_event(EventTypes.ARRIVAL, arrival[0], train, station)
 			for departure in train.departures:
 				station = self.graph.get_or_create_station(departure[1])
-				self.create_event(EventTypes.DEPARTURE, departure[0], station, receiver)
-			for section in train.on_section:
-				section = self.graph.get_or_create_section(section[0][1], section[1][1])
-				time = section[0][0] + datetime.timedelta(minutes = 1)
+				self.create_event(EventTypes.DEPARTURE, departure[0], station, train)
+			for on_section in train.on_section:
+				section = self.graph.get_or_create_section(on_section[0][1], on_section[1][1])
+				time = on_section[0][0] + datetime.timedelta(minutes = 1)
 				self.create_event(EventTypes.NOTIFY_ON_SECTION, time, train, section)
 				self.create_event(EventTypes.ON_SECTION, time, section)
 				
@@ -131,7 +131,7 @@ class Simulation:
 		destination_station = None
 		
 		while destination_station == None:
-			destination = raw_input("Please enter data destination station (x for abort): ")
+			destination = input("Please enter data destination station (x for abort): ")
 			if destination == "x":
 				print('Simulation aborted')
 				return
