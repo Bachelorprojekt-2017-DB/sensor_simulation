@@ -87,7 +87,7 @@ class _Station():
 				self.collected_data[i] = data[i] 
 
 # private Section class for Graph, only instantiate over Graph class
-class _Section(_TrainLocation):
+class _Section():
 	def __init__(self, section_id = None, first_station = None, second_station = None):
 		self.first_station = first_station
 		self.second_station = second_station
