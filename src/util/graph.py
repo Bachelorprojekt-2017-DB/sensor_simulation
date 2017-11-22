@@ -10,6 +10,18 @@ class Graph:
 	stations = []
 	highest_id = 0
 
+	def get_section_by_id(self, section_id):
+		for section in self.sections:
+			if section.section_id == section_id:
+				return section
+		return _Section()
+
+	def get_station_by_id(self, station_id):
+		for station in self.stations:
+			if station.stop_id == station_id:
+				return station
+		return _Station()		
+
 	def get_or_create_station(self, stop_id, stop_name = ""):
 		station = self._station(stop_id)
 		if not station.is_valid():
@@ -49,15 +61,9 @@ class Graph:
 				return section
 		return _Section()
 
-class _TrainLocation:
-	current_trains = []
-
-	def add_train(self, train):
-		self.current_trains.append(train)
-
 # private Station class for Graph, only instantiate over Graph class
-class _Station(_TrainLocation):
-	collected_data = {} # Hash: section id => timestamp when visited
+class _Station():
+	collected_data = [] # List: section id => timestamp when visited
 	incidents = {} # Hash: adjacent station id => section id
 
 	def __init__(self, stop_id = None, stop_name = None):
@@ -70,12 +76,18 @@ class _Station(_TrainLocation):
 	def add_incident(self, station, section):
 		self.incidents[station] = section
 
-	def inform_trains(self):
-		for train in self.current_trains:
-			train.collected_data = 	self.collected_data
+	def notify(self, train):
+		train.update(self.collected_data)
+
+	def update(self, data):
+		for i in range(len(data) - 1):
+			if data[i] == None:
+				continue
+			elif self.collected_data[i] < data[i]:
+				self.collected_data[i] = data[i] 
 
 # private Section class for Graph, only instantiate over Graph class
-class _Section(_TrainLocation):
+class _Section():
 	def __init__(self, section_id = None, first_station = None, second_station = None):
 		self.first_station = first_station
 		self.second_station = second_station
@@ -84,6 +96,12 @@ class _Section(_TrainLocation):
 	def is_valid(self):
 		return False if (self.first_station is None or self.second_station is None) else True
 
-	def inform_trains(self):
-		for train in self.current_trains:
-			train.collected_data[section_id] = time.gmtime(time.time()) # TODO: replace with current step
+	def notify(self, train):
+		train.update(self.collected_data)
+
+	def update(self, data):
+		for i in range(len(data) - 1):
+			if data[i] == None:
+				continue
+			elif self.collected_data[i] < data[i]:
+				self.collected_data[i] = data[i] 

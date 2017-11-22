@@ -88,9 +88,9 @@ class Simulation:
 				return None
 			actor = train
 		elif event_type == EventTypes.DEPARTURE:
-			actor = self.graph.get_or_create_station(train_location_id)
+			actor = self.graph.get_station_by_id(train_location_id)
 		elif event_type == EventTypes.ON_SECTION:
-			actor = self.graph.get_or_create_section(train_location_id)
+			actor = self.graph.get_section_by_id(train_location_id)
 		else:
 			return None
 		event = Event(event_type, time, actor)
@@ -113,6 +113,7 @@ class Simulation:
 		total_iterations = self.time_to_iteration(self.latest_time) # iterations = minutes
 		print("Simulation will have {} steps".format(total_iterations))
 		self.event_queue = [[] for n in range(total_iterations)]
+
 		for train in self.trains:
 			for arrival train.arrivals:
 				station = self.graph.get_or_create_station(arrival[1])
