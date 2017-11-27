@@ -1,3 +1,7 @@
 db_fernstrecke
+events_cache
+time_cache
+trains_cache
+graph_cache
 *.zargo~
 *.pyc
