@@ -3,6 +3,7 @@ import sys
 import pygtfs
 import time
 import datetime
+import pickle
 from enum import Enum
 from util.graph import Graph
 from train import Train
@@ -25,12 +26,15 @@ class Event:
 		self.iteration = iteration
 		self.sender = sender
 		self.receiver = receiver
-	
+
 	def call(self):
 		self.sender.notify(self.receiver, self.iteration)
 
 class Simulation:
 	gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+	graph_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'graph_cache')
+	trains_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'trains_cache')
+	time_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'time_cache')
 	trains = []
 	earliest_time = datetime.timedelta.max
 	latest_time = datetime.timedelta.min
@@ -59,6 +63,7 @@ class Simulation:
 						self.earliest_time = stop_time.arrival_time
 					if self.latest_time < stop_time.departure_time:
 						self.latest_time = stop_time.departure_time
+				pickle.dump((self.earliest_time, self.latest_time), open(self.time_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 				stops = sorted(stops, key = lambda x : (x[0]))
 				for i in range(0, len(stops) - 2):
 					self.graph.get_or_create_section(stops[i][1], stops[i+1][1])
@@ -68,16 +73,26 @@ class Simulation:
 			for stop in stops:
 				self.graph.get_or_create_station(stop.stop_id, stop.stop_name)
 
+	def load_graph(self):
+		print('Found previous graph at ', self.graph_path)
+		self.graph = pickle.load(open(self.graph_path, 'rb'))
+
 	def create_graph(self, schedule):
 		self.graph = Graph()
 		self.create_stations(schedule.stops)
 		self.create_sections(schedule)
+		pickle.dump(self.graph, open(self.graph_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 		print('\nStations: {}, Sections: {}'.format(len(self.graph.stations), len(self.graph.sections)))
 
 	def create_trains_from_trips(self, schedule):
 		for routes in schedule.routes:
 			for trip in routes.trips:
 				self.trains.append(Train(trip))
+		pickle.dump(self.trains, open(self.trains_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+
+	def load_trains(self):
+		print('Found previous trains at ', self.trains_path)
+		self.trains = pickle.load(open(self.trains_path, 'rb'))
 
 	def create_event(self, event_type, time, train_location_id, train = None):
 		iteration = self.time_to_iteration(time)
@@ -95,13 +110,13 @@ class Simulation:
 			return None
 		event = Event(event_type, time, actor)
 		self.event_queue[iteration].append(event)
-		
+
 	def find_station(self, name):
 		for station in self.graph.stations:
 			if station.stop_name == name:
 				return station
 		return None
-	
+
 	def print_progress(self, station, time):
 		d = len(station.collected_data) # amount of data at destination station
 		o = len(self.graph.sections) # overall amount of data
@@ -126,17 +141,17 @@ class Simulation:
 				time = on_section[0][0] + datetime.timedelta(minutes = 1)
 				self.create_event(EventTypes.NOTIFY_ON_SECTION, time, train, section)
 				self.create_event(EventTypes.ON_SECTION, time, section)
-				
+
 	def run_event_queue(self):
 		destination_station = None
-		
+
 		while destination_station == None:
 			destination = input("Please enter data destination station (x for abort): ")
 			if destination == "x":
 				print('Simulation aborted')
 				return
 			destination_station = self.find_station(destination)
-		
+
 		for event_list in self.event_queue:
 			if event_list == []:
 				continue
@@ -146,26 +161,41 @@ class Simulation:
 			self.print_progress(destination_station, time)
 
 	def main(self):
-		# setup simulation from gtfs file
-		now = time.time()
-		schedule = self.create_database_from_gtfs(self.gtfs_path)
-		print('Creating Database took {} seconds'.format(time.time() - now))
 
-		now = time.time()
-		self.create_graph(schedule)
-		print('Creating Graph object took {} seconds'.format(time.time() - now))
+		if(os.path.isfile(self.graph_path) and os.path.isfile(self.trains_path) and os.path.isfile(self.time_path)):
+			print("Skipping data base creation...")
 
-		now = time.time()
-		self.create_trains_from_trips(schedule)
-		print('Creating Train objects took {} seconds'.format(time.time() - now))
+			now = time.time()
+			self.load_graph()
+			print('Loading Graph object took {} seconds'.format(time.time() - now))
+
+			now = time.time()
+			self.load_trains()
+			print('Loading Train objects took {} seconds'.format(time.time() - now))
+
+			self.earliest_time, self.latest_time = pickle.load(open(self.time_path, 'rb'))
+		else:
+			# setup simulation from gtfs file
+			now = time.time()
+			schedule = self.create_database_from_gtfs(self.gtfs_path)
+			print('Creating Database took {} seconds'.format(time.time() - now))
+
+			now = time.time()
+			self.create_graph(schedule)
+			print('Creating Graph object took {} seconds'.format(time.time() - now))
+
+			now = time.time()
+			self.create_trains_from_trips(schedule)
+			print('Creating Train objects took {} seconds'.format(time.time() - now))
+
 
 		now = time.time()
 		event_queue = self.create_event_queue()
 		print('Creating event queue took {} seconds'.format(time.time() - now))
-		
+
 		now = time.time()
 		self.run_event_queue()
 		print('Running simulation took {} seconds'.format(time.time() - now))
-		
+
 if __name__ == '__main__':
 	Simulation().main()
