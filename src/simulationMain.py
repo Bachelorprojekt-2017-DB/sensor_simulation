@@ -4,6 +4,7 @@ import pygtfs
 import time
 import datetime
 import pickle
+from functools import reduce
 from enum import Enum
 from util.graph import Graph
 from train import Train
@@ -28,6 +29,7 @@ class Event:
 		self.receiver = receiver
 
 	def call(self):
+		print(self.receiver,self.iteration)
 		self.sender.notify(self.receiver, self.iteration)
 
 class Simulation:
@@ -129,6 +131,7 @@ class Simulation:
 		sys.stdout.flush()
 
 	def load_event_queue(self):
+		print('Found previous trains at ', self.events_path)
 		self.event_queue = pickle.load(open(self.events_path, 'rb'))
 
 	def create_event_queue(self):
@@ -159,6 +162,7 @@ class Simulation:
 				print('Simulation aborted')
 				return
 			destination_station = self.find_station(destination)
+			print(destination_station)
 
 		for event_list in self.event_queue:
 			if event_list == []:
@@ -170,7 +174,10 @@ class Simulation:
 
 	def main(self):
 
-		if(os.path.isfile(self.graph_path) and os.path.isfile(self.trains_path) and os.path.isfile(self.time_path) and os.path.isfile(self.events_path)):
+		cache_paths = [self.graph_path, self.trains_path, self.time_path, self.events_path]
+		cache_exists = reduce(lambda x,y: x and y, [os.path.isfile(p) for p in cache_paths])
+
+		if(cache_exists):
 			print("Skipping data base creation...")
 
 			now = time.time()
