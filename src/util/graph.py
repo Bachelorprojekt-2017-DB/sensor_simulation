@@ -6,9 +6,11 @@ import time
 # Use graph_intance.sections and graph_instance.stations for all of the respective instances
 
 class Graph:
-	sections = []
-	stations = []
-	highest_id = 0
+
+	def __init__(self):
+		self.sections = []
+		self.stations = []
+		self.highest_id = 0
 
 	def get_section_by_id(self, section_id):
 		for section in self.sections:
@@ -20,7 +22,7 @@ class Graph:
 		for station in self.stations:
 			if station.stop_id == station_id:
 				return station
-		return _Station()		
+		return _Station()
 
 	def get_or_create_station(self, stop_id, stop_name = ''):
 		station = self._station(stop_id)
@@ -84,7 +86,7 @@ class _Station():
 			if data[i] == None:
 				continue
 			elif self.collected_data[i] < data[i]:
-				self.collected_data[i] = data[i] 
+				self.collected_data[i] = data[i]
 
 	def __str__(self):
 		return 'Station {}: {}'.format(self.stop_id, self.stop_name)

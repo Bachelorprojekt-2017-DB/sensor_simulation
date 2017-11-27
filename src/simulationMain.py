@@ -31,13 +31,16 @@ class Event:
 		self.sender.notify(self.receiver, self.iteration)
 
 class Simulation:
-	gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
-	graph_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'graph_cache')
-	trains_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'trains_cache')
-	time_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'time_cache')
-	trains = []
-	earliest_time = datetime.timedelta.max
-	latest_time = datetime.timedelta.min
+
+	def __init__(self):
+		self.gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
+		self.graph_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'graph_cache')
+		self.trains_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'trains_cache')
+		self.time_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'time_cache')
+		self.events_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'events_cache')
+		self.trains = []
+		self.earliest_time = datetime.timedelta.max
+		self.latest_time = datetime.timedelta.min
 
 	def time_to_iteration(self, time):
 		seconds = (time - self.earliest_time).total_seconds()
@@ -76,6 +79,7 @@ class Simulation:
 	def load_graph(self):
 		print('Found previous graph at ', self.graph_path)
 		self.graph = pickle.load(open(self.graph_path, 'rb'))
+		print('\nStations: {}, Sections: {}'.format(len(self.graph.stations), len(self.graph.sections)))
 
 	def create_graph(self, schedule):
 		self.graph = Graph()
@@ -124,6 +128,9 @@ class Simulation:
 		sys.stdout.write('\r {} of {} section information has/have reached {} after {} min'.format(d, o, n, time))
 		sys.stdout.flush()
 
+	def load_event_queue(self):
+		self.event_queue = pickle.load(open(self.events_path, 'rb'))
+
 	def create_event_queue(self):
 		total_iterations = self.time_to_iteration(self.latest_time) # iterations = minutes
 		print("Simulation will have {} steps".format(total_iterations))
@@ -141,6 +148,7 @@ class Simulation:
 				time = on_section[0][0] + datetime.timedelta(minutes = 1)
 				self.create_event(EventTypes.NOTIFY_ON_SECTION, time, train, section)
 				self.create_event(EventTypes.ON_SECTION, time, section)
+		pickle.dump(self.event_queue, open(self.events_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 	def run_event_queue(self):
 		destination_station = None
@@ -162,7 +170,7 @@ class Simulation:
 
 	def main(self):
 
-		if(os.path.isfile(self.graph_path) and os.path.isfile(self.trains_path) and os.path.isfile(self.time_path)):
+		if(os.path.isfile(self.graph_path) and os.path.isfile(self.trains_path) and os.path.isfile(self.time_path) and os.path.isfile(self.events_path)):
 			print("Skipping data base creation...")
 
 			now = time.time()
@@ -174,6 +182,10 @@ class Simulation:
 			print('Loading Train objects took {} seconds'.format(time.time() - now))
 
 			self.earliest_time, self.latest_time = pickle.load(open(self.time_path, 'rb'))
+
+			now = time.time()
+			event_queue = self.load_event_queue()
+			print('Loading event queue took {} seconds'.format(time.time() - now))
 		else:
 			# setup simulation from gtfs file
 			now = time.time()
@@ -188,10 +200,9 @@ class Simulation:
 			self.create_trains_from_trips(schedule)
 			print('Creating Train objects took {} seconds'.format(time.time() - now))
 
-
-		now = time.time()
-		event_queue = self.create_event_queue()
-		print('Creating event queue took {} seconds'.format(time.time() - now))
+			now = time.time()
+			event_queue = self.create_event_queue()
+			print('Creating event queue took {} seconds'.format(time.time() - now))
 
 		now = time.time()
 		self.run_event_queue()
