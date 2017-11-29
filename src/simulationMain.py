@@ -24,7 +24,7 @@ class Event:
 
 	def call(self):
 		self.sender.notify(self.receiver, self.iteration)
-		print('sender; {}, receiver: {}'.format(self.sender.collected_data, self.receiver.collected_data))
+		# print('sender; {}, receiver: {}'.format(self.sender.collected_data, self.receiver.collected_data))
 
 class Simulation:
 
