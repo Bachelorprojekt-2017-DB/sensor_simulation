@@ -24,6 +24,7 @@ class Event:
 
 	def call(self):
 		self.sender.notify(self.receiver, self.iteration)
+		print('sender; {}, receiver: {}'.format(self.sender.collected_data, self.receiver.collected_data))
 
 class Simulation:
 
@@ -107,10 +108,10 @@ class Simulation:
 		return None
 
 	def print_progress(self, station, time):
-		d = len(station.collected_data) # amount of data at destination station
+		d = len(station.collected_data.keys()) # amount of data at destination station
 		o = len(self.graph.sections) # overall amount of data
 		n = station.stop_name # name of destination station
-		sys.stdout.write('\r {} of {} section information has/have reached {} after {} min'.format(d, o, n, time))
+		sys.stdout.write('\r {} of {} section information has/have reached {} after {} min, collected: '.format(d, o, n, time, station.collected_data))
 		sys.stdout.flush()
 
 	def load_event_queue(self):

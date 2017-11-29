@@ -72,7 +72,7 @@ class _Station():
 	def __init__(self, stop_id = None, stop_name = None):
 		self.stop_id = stop_id
 		self.stop_name = stop_name
-		self.collected_data = [] # List: section id => timestamp when visited
+		self.collected_data = {} # List: section id => timestamp when visited
 		self.incidents = {} # Hash: adjacent station id => section id
 
 
@@ -86,12 +86,11 @@ class _Station():
 		train.update(self.collected_data)
 
 	def update(self, data):
-		for i in range(len(data) - 1):
+		for i in data:
 			if data[i] == None:
 				continue
-			elif self.collected_data[i] < data[i]:
+			elif self.collected_data.get(i, 0) < data[i]:
 				self.collected_data[i] = data[i]
-		print(data)
 
 	def __str__(self):
 		return 'Station {}: {}'.format(self.stop_id, self.stop_name)
@@ -102,16 +101,15 @@ class _Section():
 		self.first_station = first_station
 		self.second_station = second_station
 		self.section_id = section_id
-		if not section_id == None:
-			self.data = [None for i in range(section_id + 1)]
-			self.data[section_id] = datetime.timedelta.min
+		self.collected_data = {}
+		self.collected_data[section_id] = datetime.timedelta.min
 
 	def is_valid(self):
 		return False if (self.first_station is None or self.second_station is None) else True
 
 	def notify(self, train, iteration):
-		self.data[self.section_id] = iteration
-		train.update(self.data)
+		self.collected_data[self.section_id] = iteration
+		train.update(self.collected_data)
 
 	def update(self, data):
 		pass

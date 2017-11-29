@@ -1,8 +1,11 @@
 class Train:	
-	collected_data = [] # Hash: section_id -> timestamp
-	arrivals = [] # List of [arrival time, stop id]
-	departures = [] # List of [departure time, stop id]
-	on_section = [] # List of [departure pair, arrival pair] from above
+	def __init__(self, trip):
+		self.trip = trip
+		self.collected_data = {} # Hash: section_id -> timestamp
+		self.arrivals = [] # List of [arrival time, stop id]
+		self.departures = [] # List of [departure time, stop id]
+		self.on_section = [] # List of [departure pair, arrival pair] from above
+		self.initialize_events()
 
 	def stop_time_by_seq(self, seq):
 		for stop_time in self.trip.stop_times:
@@ -36,12 +39,8 @@ class Train:
 		train_location.update(self.collected_data)
 
 	def update(self, data):
-		for i in range(len(data) - 1):
+		for i in data:
 			if data[i] == None:
 				continue
-			elif self.collected_data[i] < data[i]:
+			elif self.collected_data.get(i, 0) < data[i]:
 				self.collected_data[i] = data[i]
-
-	def __init__(self, trip):
-		self.trip = trip
-		self.initialize_events()
