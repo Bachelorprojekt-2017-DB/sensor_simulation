@@ -1,4 +1,5 @@
 import time
+import datetime
 
 # Graph class
 # Use get_or_create_station(stop_id, stop_name) for a single station instance
@@ -29,7 +30,7 @@ class Graph:
 		if not station.is_valid():
 			station = _Station(stop_id, stop_name)
 			if not station.is_valid():
-				return station
+				return _Station
 			self.stations.append(station)
 		return station
 
@@ -47,6 +48,8 @@ class Graph:
 			self.highest_id += 1
 			first_station.add_incident(second_station, section)
 			second_station.add_incident(first_station, section)
+			if not section.is_valid():
+				return _Section()
 			self.sections.append(section)
 		return section
 
@@ -65,12 +68,13 @@ class Graph:
 
 # private Station class for Graph, only instantiate over Graph class
 class _Station():
-	collected_data = [] # List: section id => timestamp when visited
-	incidents = {} # Hash: adjacent station id => section id
 
 	def __init__(self, stop_id = None, stop_name = None):
 		self.stop_id = stop_id
 		self.stop_name = stop_name
+		self.collected_data = [] # List: section id => timestamp when visited
+		self.incidents = {} # Hash: adjacent station id => section id
+
 
 	def is_valid(self):
 		return False if (self.stop_id is None) else True
@@ -87,6 +91,7 @@ class _Station():
 				continue
 			elif self.collected_data[i] < data[i]:
 				self.collected_data[i] = data[i]
+		print(data)
 
 	def __str__(self):
 		return 'Station {}: {}'.format(self.stop_id, self.stop_name)
@@ -97,12 +102,16 @@ class _Section():
 		self.first_station = first_station
 		self.second_station = second_station
 		self.section_id = section_id
+		if not section_id == None:
+			self.data = [None for i in range(section_id + 1)]
+			self.data[section_id] = datetime.timedelta.min
 
 	def is_valid(self):
 		return False if (self.first_station is None or self.second_station is None) else True
 
 	def notify(self, train, iteration):
-		train.update([self.section_id], iteration)
+		self.data[self.section_id] = iteration
+		train.update(self.data)
 
 	def update(self, data):
 		pass

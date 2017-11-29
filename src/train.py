@@ -40,7 +40,7 @@ class Train:
 			if data[i] == None:
 				continue
 			elif self.collected_data[i] < data[i]:
-				self.collected_data[i] = data[i] 
+				self.collected_data[i] = data[i]
 
 	def __init__(self, trip):
 		self.trip = trip

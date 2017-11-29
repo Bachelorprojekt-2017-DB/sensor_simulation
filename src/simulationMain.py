@@ -17,19 +17,12 @@ class EventTypes(Enum):
 	ON_SECTION = 4
 
 class Event:
-	sender = None # possible actors should be Train, _Station or _Section objects
-	receiver = None # Used when Train informs station/section of arrival on that station/section
-	iteration = -1
-	event_type = EventTypes.UNDEFINED
-
-	def __init__(self, event_type, iteration, sender, receiver = None):
-		self.event_type = event_type
+	def __init__(self, iteration, sender, receiver):
 		self.iteration = iteration
 		self.sender = sender
 		self.receiver = receiver
 
 	def call(self):
-		print(self.receiver,self.iteration)
 		self.sender.notify(self.receiver, self.iteration)
 
 class Simulation:
@@ -100,21 +93,11 @@ class Simulation:
 		print('Found previous trains at ', self.trains_path)
 		self.trains = pickle.load(open(self.trains_path, 'rb'))
 
-	def create_event(self, event_type, time, train_location_id, train = None):
+	def create_event(self, time, sender, receiver):
 		iteration = self.time_to_iteration(time)
 		if iteration < 0:
 			return None
-		if event_type == EventTypes.ARRIVAL:
-			if train == None:
-				return None
-			actor = train
-		elif event_type == EventTypes.DEPARTURE:
-			actor = self.graph.get_station_by_id(train_location_id)
-		elif event_type == EventTypes.ON_SECTION:
-			actor = self.graph.get_section_by_id(train_location_id)
-		else:
-			return None
-		event = Event(event_type, time, actor)
+		event = Event(iteration, sender, receiver)
 		self.event_queue[iteration].append(event)
 
 	def find_station(self, name):
@@ -140,24 +123,30 @@ class Simulation:
 		self.event_queue = [[] for n in range(total_iterations)]
 
 		for train in self.trains:
+			if train == None:
+				print('None')
+				continue
 			for arrival in train.arrivals:
 				station = self.graph.get_or_create_station(arrival[1])
-				self.create_event(EventTypes.ARRIVAL, arrival[0], train, station)
+				self.create_event(arrival[0], train, station)
 			for departure in train.departures:
 				station = self.graph.get_or_create_station(departure[1])
-				self.create_event(EventTypes.DEPARTURE, departure[0], station, train)
+				self.create_event(departure[0], station, train)
 			for on_section in train.on_section:
 				section = self.graph.get_or_create_section(on_section[0][1], on_section[1][1])
 				time = on_section[0][0] + datetime.timedelta(minutes = 1)
-				self.create_event(EventTypes.NOTIFY_ON_SECTION, time, train, section)
-				self.create_event(EventTypes.ON_SECTION, time, section)
+				self.create_event(time, train, section)
+				self.create_event(time, section, train)
+			if train == None:
+				print('None2')
 		pickle.dump(self.event_queue, open(self.events_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
 
 	def run_event_queue(self):
 		destination_station = None
 
 		while destination_station == None:
-			destination = input("Please enter data destination station (x for abort): ")
+			# destination = input("Please enter data destination station (x for abort): ")
+			destination = 'Frankfurt(Main)Hbf'
 			if destination == "x":
 				print('Simulation aborted')
 				return
