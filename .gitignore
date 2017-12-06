@@ -5,3 +5,5 @@ trains_cache
 graph_cache
 *.zargo~
 *.pyc
+database
+*.json

@@ -25,14 +25,14 @@ class Train:
 
 		seq = stops[0]
 		stop_time = self.stop_time_by_seq(seq)
-		self.arrivals[0] = [stop_time.arrival_time, stop_time.stop_id]
-		self.departures[0] = [stop_time.departure_time, stop_time.stop_id]
+		self.arrivals[0] = [stop_time.arrival_time, int(stop_time.stop_id)]
+		self.departures[0] = [stop_time.departure_time, int(stop_time.stop_id)]
 
 		for i in range(1, len(stops) - 1):
 			seq = stops[i]
 			stop_time = self.stop_time_by_seq(seq)
-			self.arrivals[i] = [stop_time.arrival_time, stop_time.stop_id]
-			self.departures[i] = [stop_time.departure_time, stop_time.stop_id]
+			self.arrivals[i] = [stop_time.arrival_time, int(stop_time.stop_id)]
+			self.departures[i] = [stop_time.departure_time, int(stop_time.stop_id)]
 			self.on_section[i-1] = [self.departures[i - 1], self.arrivals[i]]
 
 	def notify(self, train_location, time):

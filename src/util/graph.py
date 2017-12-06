@@ -1,86 +1,55 @@
-import time
 import datetime
 
-# Graph class
-# Use get_or_create_station(stop_id, stop_name) for a single station instance
-# Use get_or_create_section(start_stop_id, end_stop_id) for a single section instance
-# Use graph_intance.sections and graph_instance.stations for all of the respective instances
-
 class Graph:
-
 	def __init__(self):
-		self.sections = []
 		self.stations = []
+		self.sections = []
 		self.highest_id = 0
 
-	def get_section_by_id(self, section_id):
-		for section in self.sections:
-			if section.section_id == section_id:
-				return section
-		return _Section()
-
-	def get_station_by_id(self, station_id):
+	def station_existing(self, stop_id):
 		for station in self.stations:
-			if station.stop_id == station_id:
-				return station
-		return _Station()
+			if station.stop_id == stop_id:
+				return True
+		return False
 
-	def get_or_create_station(self, stop_id, stop_name = ''):
-		station = self._station(stop_id)
-		if not station.is_valid():
-			station = _Station(stop_id, stop_name)
-			if not station.is_valid():
-				return _Station
-			self.stations.append(station)
-		return station
-
-	def get_or_create_section(self, start_stop_id, end_stop_id):
-		start_station = self.get_or_create_station(start_stop_id)
-		end_station = self.get_or_create_station(end_stop_id)
-		if not (start_station.is_valid() and end_station.is_valid()):
-			return _Section()
-		return self._get_or_create_section(start_station, end_station)
-
-	def _get_or_create_section(self, first_station, second_station):
-		section = self._section(first_station, second_station)
-		if not section.is_valid():
-			section = _Section(self.highest_id, first_station, second_station)
-			self.highest_id += 1
-			first_station.add_incident(second_station, section)
-			second_station.add_incident(first_station, section)
-			if not section.is_valid():
-				return _Section()
-			self.sections.append(section)
-		return section
-
-	def _station(self, stop_id):
+	def get_station_by_id(self, stop_id):
 		for station in self.stations:
-			if (station.stop_id == stop_id):
+			if station.stop_id == stop_id:
 				return station
-		return _Station()
+		raise Exception('No station found with id {}'.format(stop_id))
 
-	def _section(self, first_station, second_station):
+	def create_station(self, stop_id, stop_name):
+		if self.station_existing(stop_id):
+			station = self.get_station_by_id(stop_id)
+			raise Exception('{} already existing'.format(station))
+		station = Station(stop_id, stop_name)
+		self.stations.append(station)
+
+	def section_existing(self, first_station, second_station):
 		for section in self.sections:
-			if (section.first_station == first_station and section.second_station == second_station or
-				section.second_station == first_station and section.first_station == second_station):
+			if ((section.first_station == first_station and section.second_station == second_station) or (section.second_station == first_station and section.first_station == second_station)):
+				return True
+		return False				
+
+	def get_section(self, first_station, second_station):
+		for section in self.sections:
+			if ((section.first_station == first_station and section.second_station == second_station) or (section.second_station == first_station and section.first_station == second_station)):
 				return section
-		return _Section()
+		raise Exception('No section found with {} and {}'.format(first_station, second_station))
 
-# private Station class for Graph, only instantiate over Graph class
-class _Station():
+	def create_section(self, first_station, second_station):
+		if self.section_existing(first_station, second_station):
+			section = self.get_section(first_station, second_station)
+			raise Exception('{} already existing'.format(section))
+		section = Section(self.highest_id, first_station, second_station)
+		self.sections.append(section)
+		self.highest_id += 1
 
-	def __init__(self, stop_id = None, stop_name = None):
+class Station:
+	def __init__(self, stop_id, stop_name):
 		self.stop_id = stop_id
 		self.stop_name = stop_name
-		self.collected_data = {} # List: section id => timestamp when visited
-		self.incidents = {} # Hash: adjacent station id => section id
-
-
-	def is_valid(self):
-		return False if (self.stop_id is None) else True
-
-	def add_incident(self, station, section):
-		self.incidents[station] = section
+		self.collected_data = {}
 
 	def notify(self, train, time):
 		train.update(self.collected_data)
@@ -95,20 +64,16 @@ class _Station():
 	def __str__(self):
 		return 'Station {}: {}'.format(self.stop_id, self.stop_name)
 
-# private Section class for Graph, only instantiate over Graph class
-class _Section():
-	def __init__(self, section_id = None, first_station = None, second_station = None):
+class Section:
+	def __init__(self, section_id, first_station, second_station):
+		self.section_id = section_id
 		self.first_station = first_station
 		self.second_station = second_station
-		self.section_id = section_id
 		self.collected_data = {}
 		self.collected_data[section_id] = datetime.timedelta.min
 
-	def is_valid(self):
-		return False if (self.first_station is None or self.second_station is None) else True
-
-	def notify(self, train, iteration):
-		self.collected_data[self.section_id] = iteration
+	def notify(self, train, time):
+		self.collected_data[self.section_id] = time
 		train.update(self.collected_data)
 
 	def update(self, data):
