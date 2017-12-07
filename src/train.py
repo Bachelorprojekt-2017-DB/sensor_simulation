@@ -34,8 +34,8 @@ class Train:
 		train_location.update(self.collected_data)
 
 	def update(self, data):
-		for i in data:
-			if data[i] == None:
+		for section_id, timestamp in data.items():
+			if timestamp is None:
 				continue
-			elif self.collected_data.get(i, 0) < data[i]:
-				self.collected_data[i] = data[i]
+			if self.collected_data.get(section_id, 0) < timestamp:
+				self.collected_data[section_id] = timestamp
