@@ -29,7 +29,7 @@ class Graph:
 		for section in self.sections:
 			if ((section.first_station == first_station and section.second_station == second_station) or (section.second_station == first_station and section.first_station == second_station)):
 				return True
-		return False				
+		return False
 
 	def get_section(self, first_station, second_station):
 		for section in self.sections:
@@ -55,11 +55,12 @@ class Station:
 		train.update(self.collected_data)
 
 	def update(self, data):
-		for i in data:
-			if data[i] == None:
+		# TODO: deduplicate with ``Train.update``
+		for section_id, timestamp in data.items():
+			if timestamp is None:
 				continue
-			elif self.collected_data.get(i, 0) < data[i]:
-				self.collected_data[i] = data[i]
+			if self.collected_data.get(section_id, 0) < timestamp:
+				self.collected_data[section_id] = timestamp
 
 	def __str__(self):
 		return 'Station {}: {}'.format(self.stop_id, self.stop_name)
