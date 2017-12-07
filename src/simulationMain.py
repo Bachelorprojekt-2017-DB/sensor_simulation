@@ -5,6 +5,8 @@ import time
 import datetime
 from util.graph import Graph
 from util.graph_encoder import GraphEncoder, GraphDecoder
+from collections import deque
+
 from train import Train
 
 class Event:
@@ -22,7 +24,7 @@ class Simulation:
 		self.gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 		self.graph_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'graph.json')
 		self.database_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'database')
-		self.trains = []
+		self.trains = deque()
 		self.earliest_time = datetime.timedelta.max
 		self.latest_time = datetime.timedelta.min
 
