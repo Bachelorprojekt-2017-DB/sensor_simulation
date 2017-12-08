@@ -116,6 +116,8 @@ class Simulation:
 		print("Simulation will have {} steps".format(total_iterations))
 		self.event_queue = [[] for n in range(total_iterations)]
 
+		# TODO: get rid of O(n) lookups (``graph.get_station_by_id``)
+
 		for train in self.trains:
 			if train == None:
 				continue
