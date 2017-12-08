@@ -26,7 +26,11 @@ class Graph:
 
 	def get_section(self, first_station, second_station):
 		for section in self.sections:
-			if ((section.first_station == first_station and section.second_station == second_station) or (section.second_station == first_station and section.first_station == second_station)):
+			if (section.first_station == first_station and
+					section.second_station == second_station):
+				return section
+			if (section.second_station == first_station and
+			    section.first_station == second_station):
 				return section
 		raise Exception('No section found with {} and {}'.format(first_station, second_station))
 
