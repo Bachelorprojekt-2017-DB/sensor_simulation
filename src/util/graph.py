@@ -2,28 +2,21 @@ import datetime
 
 class Graph:
 	def __init__(self):
-		self.stations = []
+		self.stations = {} # stop_id -> station
 		self.sections = []
 		self.highest_id = 0
 
 	def station_existing(self, stop_id):
-		for station in self.stations:
-			if station.stop_id == stop_id:
-				return True
-		return False
+		return stop_id in self.stations
 
 	def get_station_by_id(self, stop_id):
-		for station in self.stations:
-			if station.stop_id == stop_id:
-				return station
-		raise Exception('No station found with id {}'.format(stop_id))
+		return self.stations[stop_id]
 
 	def create_station(self, stop_id, stop_name):
-		if self.station_existing(stop_id):
+		if stop_id in self.stations:
 			station = self.get_station_by_id(stop_id)
 			raise Exception('{} already existing'.format(station))
-		station = Station(stop_id, stop_name)
-		self.stations.append(station)
+		self.stations[stop_id] = Station(stop_id, stop_name)
 
 	def section_existing(self, first_station, second_station):
 		for section in self.sections:

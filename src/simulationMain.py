@@ -73,7 +73,8 @@ class Simulation:
 			self.create_stations(schedule.stops)
 			self.create_sections(schedule)
 			GraphEncoder().save_to_file(self.graph, self.graph_path)
-		print('Stations: {}, Sections: {}'.format(len(self.graph.stations), len(self.graph.sections)))
+		print('Stations: {}, Sections: {}'.format(len(self.graph.stations.values()),
+																							len(self.graph.sections)))
 
 	def create_trains_from_trips(self, schedule):
 		n = 1
@@ -99,7 +100,7 @@ class Simulation:
 		self.event_queue[iteration].append(event)
 
 	def find_station(self, name):
-		for station in self.graph.stations:
+		for station in self.graph.stations.values():
 			if station.stop_name == name:
 				return station
 		return None
