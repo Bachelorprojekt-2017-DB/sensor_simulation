@@ -115,9 +115,9 @@ class Simulation:
 	def create_event_queue(self):
 		total_iterations = self.time_to_iteration(self.latest_time) # iterations = minutes
 		print("Simulation will have {} steps".format(total_iterations))
-		self.event_queue = [[] for n in range(total_iterations)]
+		self.event_queue = tuple([] for n in range(total_iterations))
 
-		# TODO: get rid of O(n) lookups (``graph.get_station_by_id``)
+		# TODO: I feel this could be optimized
 
 		for train in self.trains:
 			if train == None:
@@ -149,7 +149,7 @@ class Simulation:
 			print(destination_station)
 
 		for event_list in self.event_queue:
-			if event_list == []:
+			if not event_list:
 				continue
 			time = event_list[0].iteration
 			for event in event_list:

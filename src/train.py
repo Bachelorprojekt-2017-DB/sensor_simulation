@@ -2,9 +2,9 @@ class Train:
 	def __init__(self, trip):
 		self.trip = trip
 		self.collected_data = {} # Hash: section_id -> timestamp
-		self.arrivals = [] # List of [arrival time, stop id]
-		self.departures = [] # List of [departure time, stop id]
-		self.on_section = [] # List of [departure pair, arrival pair] from above
+		self.arrivals = [] # List of (arrival time, stop id)
+		self.departures = [] # List of (departure time, stop id)
+		self.on_section = [] # List of (departure pair, arrival pair) from above
 		self.initialize_events()
 
 	def initialize_events(self):
@@ -23,10 +23,11 @@ class Train:
 		previous_i = None
 		for i, seq in enumerate(stops[:-1]):
 			stop_time = stop_time_by_seq[seq]
-			self.arrivals[i] = [stop_time.arrival_time, int(stop_time.stop_id)]
-			self.departures[i] = [stop_time.departure_time, int(stop_time.stop_id)]
+			self.arrivals[i] = (stop_time.arrival_time, int(stop_time.stop_id))
+			self.departures[i] = (stop_time.departure_time, int(stop_time.stop_id))
 			if previous_i is not None:
-				self.on_section[previous_i] = (self.departures[previous_i], self.arrivals[i])
+				self.on_section[previous_i] = (self.departures[previous_i],
+																				self.arrivals[i])
 			previous_i = i
 
 	def notify(self, train_location, time):
