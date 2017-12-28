@@ -5,6 +5,8 @@ import time
 import datetime
 from util.graph import Graph
 from util.graph_encoder import GraphEncoder, GraphDecoder
+from collections import deque
+
 from train import Train
 
 class Event:
@@ -22,7 +24,7 @@ class Simulation:
 		self.gtfs_path = os.path.join(os.path.dirname(__file__), '..', 'data')
 		self.graph_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'graph.json')
 		self.database_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'database')
-		self.trains = []
+		self.trains = deque()
 		self.earliest_time = datetime.timedelta.max
 		self.latest_time = datetime.timedelta.min
 
@@ -71,7 +73,8 @@ class Simulation:
 			self.create_stations(schedule.stops)
 			self.create_sections(schedule)
 			GraphEncoder().save_to_file(self.graph, self.graph_path)
-		print('Stations: {}, Sections: {}'.format(len(self.graph.stations), len(self.graph.sections)))
+		print('Stations: {}, Sections: {}'.format(len(self.graph.stations.values()),
+																							len(self.graph.sections)))
 
 	def create_trains_from_trips(self, schedule):
 		n = 1
@@ -97,7 +100,7 @@ class Simulation:
 		self.event_queue[iteration].append(event)
 
 	def find_station(self, name):
-		for station in self.graph.stations:
+		for station in self.graph.stations.values():
 			if station.stop_name == name:
 				return station
 		return None
@@ -112,7 +115,9 @@ class Simulation:
 	def create_event_queue(self):
 		total_iterations = self.time_to_iteration(self.latest_time) # iterations = minutes
 		print("Simulation will have {} steps".format(total_iterations))
-		self.event_queue = [[] for n in range(total_iterations)]
+		self.event_queue = tuple([] for n in range(total_iterations))
+
+		# TODO: I feel this could be optimized
 
 		for train in self.trains:
 			if train == None:
@@ -144,7 +149,7 @@ class Simulation:
 			print(destination_station)
 
 		for event_list in self.event_queue:
-			if event_list == []:
+			if not event_list:
 				continue
 			time = event_list[0].iteration
 			for event in event_list:

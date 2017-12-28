@@ -15,7 +15,7 @@ class GraphEncoder():
 		return section_dict
 
 	def create_graph_dictionary(self, graph):
-		station_dict = self.create_station_dictionary(graph.stations)
+		station_dict = self.create_station_dictionary(graph.stations.values())
 		section_dict = self.create_section_dictionary(graph.sections)
 		return {'stations': station_dict, 'sections': section_dict}
 
