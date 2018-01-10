@@ -25,6 +25,7 @@ class Simulation:
 		self.trains = []
 		self.earliest_time = datetime.timedelta.max
 		self.latest_time = datetime.timedelta.min
+		self.schedule = []
 
 	def time_to_iteration(self, time):
 		seconds = (time - self.earliest_time).total_seconds()
@@ -110,11 +111,25 @@ class Simulation:
 		sys.stdout.flush()
 
 	def create_event_queue(self):
+		start_date = datetime.date(2017, 1, 1)
+		end_date = datetime.date(2017, 2, 1)
+
+		while(start_date <= end_date):
+			self.create_day_event_queue(start_date)
+			start_date += datetime.timedelta(days=1)
+
+	def create_day_event_queue(self, date):
 		total_iterations = self.time_to_iteration(self.latest_time) # iterations = minutes
 		print("Simulation will have {} steps".format(total_iterations))
 		self.event_queue = [[] for n in range(total_iterations)]
 
-		for train in self.trains:
+		active_services = self.schedule.session.query(pygtfs.gtfs_entities.ServiceException).filter(pygtfs.gtfs_entities.ServiceException.date == date).all()
+		active_services_ids = [x.id for x in active_services]
+		trains_on_day = [x for x in self.trains if x.trip.service_id in active_services_ids]
+
+		print(len(trains_on_day))
+
+		for train in trains_on_day:
 			if train == None:
 				continue
 			for arrival in train.arrivals:
@@ -154,15 +169,15 @@ class Simulation:
 	def main(self):
 		# setup simulation from gtfs file
 		now = time.time()
-		schedule = self.create_database_from_gtfs(self.gtfs_path)
+		self.schedule = self.create_database_from_gtfs(self.gtfs_path)
 		print('Creating Database took {} seconds'.format(time.time() - now))
 
 		now = time.time()
-		self.create_graph(schedule)
+		self.create_graph(self.schedule)
 		print('Creating Graph object took {} seconds'.format(time.time() - now))
 
 		now = time.time()
-		self.create_trains_from_trips(schedule)
+		self.create_trains_from_trips(self.schedule)
 		print('Creating Train objects took {} seconds'.format(time.time() - now))
 
 		now = time.time()

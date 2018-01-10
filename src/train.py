@@ -1,4 +1,4 @@
-class Train:	
+class Train:
 	def __init__(self, trip):
 		self.trip = trip
 		self.collected_data = {} # Hash: section_id -> timestamp
@@ -11,7 +11,7 @@ class Train:
 		for stop_time in self.trip.stop_times:
 			if stop_time.stop_sequence == seq:
 				return stop_time
-	
+
 	def initialize_events(self):
 		stops = []
 		for stop_time in self.trip.stop_times:
