@@ -112,37 +112,37 @@ class Simulation:
 
 	def create_event_queue(self):
 		start_date = datetime.date(2017, 1, 1)
+		self.earliest_time = start_date
 		end_date = datetime.date(2017, 2, 1)
+		self.latest_time = end_date
+
+		total_iterations = self.time_to_iteration(end_date + datetime.timedelta(days=2)) # add one more day to be sure
+		print("Simulation will have {} steps".format(total_iterations))
+		self.event_queue = [[] for n in range(total_iterations)]
 
 		while(start_date <= end_date):
 			self.create_day_event_queue(start_date)
 			start_date += datetime.timedelta(days=1)
 
 	def create_day_event_queue(self, date):
-		total_iterations = self.time_to_iteration(self.latest_time) # iterations = minutes
-		print("Simulation will have {} steps".format(total_iterations))
-		self.event_queue = [[] for n in range(total_iterations)]
-
 		active_services = self.schedule.session.query(pygtfs.gtfs_entities.ServiceException).filter(pygtfs.gtfs_entities.ServiceException.date == date).all()
 		active_services_ids = [x.id for x in active_services]
 		trains_on_day = [x for x in self.trains if x.trip.service_id in active_services_ids]
-
-		print(len(trains_on_day))
 
 		for train in trains_on_day:
 			if train == None:
 				continue
 			for arrival in train.arrivals:
 				station = self.graph.get_station_by_id(arrival[1])
-				self.create_event(arrival[0], train, station)
+				self.create_event(arrival[0] + date, train, station)
 			for departure in train.departures:
 				station = self.graph.get_station_by_id(departure[1])
-				self.create_event(departure[0], station, train)
+				self.create_event(departure[0] + date, station, train)
 			for on_section in train.on_section:
 				first_station = self.graph.get_station_by_id(on_section[0][1])
 				second_station = self.graph.get_station_by_id(on_section[1][1])
 				section = self.graph.get_section(first_station, second_station)
-				time = on_section[0][0] + datetime.timedelta(minutes = 1)
+				time = on_section[0][0] + datetime.timedelta(minutes = 1) + date
 				self.create_event(time, train, section)
 				self.create_event(time, section, train)
 
