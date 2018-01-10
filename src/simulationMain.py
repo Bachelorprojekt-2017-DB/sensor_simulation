@@ -165,6 +165,19 @@ class Simulation:
 			for event in event_list:
 				event.call()
 			self.print_progress(destination_station, time)
+		self.print_progress(destination_station,self.latest_time)
+
+		graph_sections = set([x.section_id for x in self.graph.sections])
+		collected_sections = []
+		for key,val in destination_station.collected_data.items():
+			collected_sections.append(key)
+		collected_sections = set(collected_sections)
+
+		missing_sections = graph_sections - collected_sections
+		missing_sections = list(missing_sections)
+		for s in self.graph.sections:
+			if s.section_id in missing_sections:
+				print(s.first_station.stop_name, ' -- ', s.second_station.stop_name)
 
 	def main(self):
 		# setup simulation from gtfs file
