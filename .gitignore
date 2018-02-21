@@ -7,3 +7,5 @@ graph_cache
 *.pyc
 database
 *.json
+.coverage
+htmlcov/

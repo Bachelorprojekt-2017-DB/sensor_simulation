@@ -12,5 +12,7 @@ Run:
 
 Unit Testing:
 
+- install coverage module (``pip3 install coverage``)
 - to write a unit test, create a new file in the test folder named after following scheme: 'test_[module_name].py' (see unittest module for details)
 - to run tests, run test_runner.py in root dir
+- after running the tests, a coverage analysis can be found in htmlcov/index.html (``firefox htmlcov/index.html``)
