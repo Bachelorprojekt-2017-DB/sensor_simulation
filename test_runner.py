@@ -15,10 +15,14 @@ class TestRunner():
 		cov.html_report()
 
 	def print_result(self, result):
+		print('Errors:')
 		for error in result.errors:
+			print(error[0])
 			print(error[1])
-		print('Errors: {}\n'.format(result.errors))
-		print('Failures: {}'.format(result.failures))
+		print('Failures:')
+		for failure in result.failures:
+			print(failure[0])
+			print(failure[1])
 
 if __name__ == '__main__':
 	TestRunner().main()
