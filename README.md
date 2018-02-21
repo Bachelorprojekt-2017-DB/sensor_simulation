@@ -9,3 +9,8 @@ Run:
 - install dependencies
   - ``pip3 install .``
 - execute main ``python3 src/simulationMain.py``
+
+Unit Testing:
+
+- to write a unit test, create a new file in the test folder named after following scheme: 'test_[module_name].py' (see unittest module for details)
+- to run tests, run test_runner.py in root dir
