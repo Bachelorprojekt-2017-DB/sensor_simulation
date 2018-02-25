@@ -49,7 +49,8 @@ class Simulation:
 			for trip in route.trips:
 				stops = []
 				for stop_time in trip.stop_times:
-					stops.append([stop_time.stop_sequence, stop_time.stop_id])
+					stop_id = int(stop_time.stop_id)
+					stops.append([stop_time.stop_sequence, stop_id])
 				stops = sorted(stops, key = lambda x : (x[0]))
 				for i in range(0, len(stops) - 2):
 					first_station = self.graph.get_station_by_id(stops[i][1])
@@ -61,8 +62,9 @@ class Simulation:
 
 	def create_stations(self, stops):
 			for stop in stops:
-				if not self.graph.station_existing(stop.stop_id):
-					self.graph.create_station(stop.stop_id, stop.stop_name)
+				stop_id = int(stop.stop_id)
+				if not self.graph.station_existing(stop_id):
+					self.graph.create_station(stop_id, stop.stop_name)
 
 	def create_graph(self, schedule):
 		if os.path.isfile(self.graph_path):

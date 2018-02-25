@@ -42,7 +42,7 @@ class Graph:
 		for section in self.sections:
 			if ((section.first_station == first_station and section.second_station == second_station) or (section.second_station == first_station and section.first_station == second_station)):
 				return True
-		return False				
+		return False
 
 	def get_section(self, first_station, second_station):
 		for section in self.sections:
@@ -59,12 +59,12 @@ class Graph:
 		self.highest_id += 1
 
 	def isEmpty(self):
-		return not (self.stations or self.sections) 
+		return not (self.stations or self.sections)
 
 class Station:
 	def __init__(self, stop_id, stop_name):
 		if not isinstance(stop_id, int):
-			raise TypeError('Station: stop_id is not an int')
+			raise TypeError('Station: stop_id is not an int it is ', type(stop_id), ' value: ', str(stop_id))
 		if not isinstance(stop_name, str):
 			raise TypeError('Station: stop_name is not a string')
 		self.stop_id = stop_id
