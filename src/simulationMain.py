@@ -3,8 +3,8 @@ import sys
 import pygtfs
 import time
 import datetime
-from util.graph import Graph
-from util.graph_encoder import GraphEncoder, GraphDecoder
+from util import Graph
+from util import GraphEncoder, GraphDecoder
 from train import Train
 
 class Event:
