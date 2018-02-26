@@ -44,6 +44,7 @@ class SectionTestCase(unittest.TestCase):
 	def test_create_valid_section(self):
 		section = Section(42, self.station1, self.station2)
 		self.assertTrue(section.isValid())
+		self.assertTrue(False)
 		self.assertEqual(section.section_id, 42)
 		self.assertEqual(section.first_station, self.station1)
 		self.assertEqual(section.second_station, self.station2)
