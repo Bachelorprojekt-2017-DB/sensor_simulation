@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 class TestRunner():
 	def main(self):
@@ -7,6 +8,8 @@ class TestRunner():
 		result = unittest.TestResult()
 		suite.run(result)
 		self.print_result(result)
+		if not result.wasSuccessful():
+			sys.exit("Test failure")
 
 	def print_result(self, result):
 		print('Errors:')
