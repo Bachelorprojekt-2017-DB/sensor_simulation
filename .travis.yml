@@ -6,6 +6,6 @@ python:
 install:
   - pip install .
 script:
-  - python test_runner.py
+  - coverage run test_runner.py
 after_success:
   - codecov
