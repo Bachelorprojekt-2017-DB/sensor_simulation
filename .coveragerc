@@ -1,2 +1,2 @@
 [run]
-include = /src/*
+source = src
