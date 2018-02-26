@@ -1,3 +1,2 @@
 [run]
-source = src
-include = /src/utils/*
+include = /src/*
