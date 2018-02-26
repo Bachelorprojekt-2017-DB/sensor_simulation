@@ -1,18 +1,12 @@
 import unittest
-import coverage
 
 class TestRunner():
 	def main(self):
-		cov = coverage.Coverage()
-		cov.start()
 		test_loader = unittest.defaultTestLoader
 		suite = test_loader.discover("test")
 		result = unittest.TestResult()
 		suite.run(result)
 		self.print_result(result)
-		cov.stop()
-		cov.save()
-		cov.html_report()
 
 	def print_result(self, result):
 		print('Errors:')
