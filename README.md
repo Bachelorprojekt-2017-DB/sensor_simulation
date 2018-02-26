@@ -1,4 +1,4 @@
-# Sensor network Simulation DB Fernstrecke [![Build Status](https://travis-ci.org/Bachelorprojekt-2017-DB/sensor_simulation.svg?branch=master)](https://travis-ci.org/Bachelorprojekt-2017-DB/sensor_simulation)
+# Sensor network Simulation DB Fernstrecke [![Build Status](https://travis-ci.org/Bachelorprojekt-2017-DB/sensor_simulation.svg?branch=master)](https://travis-ci.org/Bachelorprojekt-2017-DB/sensor_simulation) [![codecov](https://codecov.io/gh/Bachelorprojekt-2017-DB/sensor_simulation/branch/master/graph/badge.svg)](https://codecov.io/gh/Bachelorprojekt-2017-DB/sensor_simulation)
 
 - Simulate Deutsche Bahn train network regarding decentralized sensor data exchange
 - data from [db-fv-gtfs](https://github.com/fredlockheed/db-fv-gtfs)
