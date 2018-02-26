@@ -1,5 +1,5 @@
 import unittest
-from src.util.graph import Graph, Station, Section
+from src.util import Graph, Station, Section
 
 class StationTestCase(unittest.TestCase):
 	def test_create_invalid_station(self):
