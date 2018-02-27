@@ -3,6 +3,7 @@ import sys
 import pygtfs
 import time
 import datetime
+import simplejson
 from graph import Graph
 
 class Event:
@@ -157,6 +158,7 @@ class Simulation:
 		d = len(station.collected_data.keys()) # amount of data at destination station
 		o = len(self.graph.sections) # overall amount of data
 		n = station.stop_name # name of destination station
+		self.result_list[time] = d
 		sys.stdout.write('\r {} of {} section information has/have reached {} after {} min, collected: '.format(d, o, n, time, station.collected_data))
 		sys.stdout.flush()
 
@@ -168,6 +170,7 @@ class Simulation:
 
 		total_iterations = self.time_to_iteration(end_date + datetime.timedelta(days=2)) # add one more day to be sure
 		print("Simulation will have {} steps".format(total_iterations))
+		self.result_list = [0] * total_iterations
 		self.event_queue = [[] for n in range(total_iterations)]
 
 		while(start_date <= end_date):
@@ -215,7 +218,7 @@ class Simulation:
 			for event in event_list:
 				event.call()
 			self.print_progress(destination_station, time)
-		self.print_progress(destination_station,self.latest_time)
+		self.print_progress(destination_station, self.time_to_iteration(self.latest_time))
 
 		graph_sections = set([x.section_id for x in self.graph.sections])
 		collected_sections = []
@@ -228,6 +231,11 @@ class Simulation:
 		for s in self.graph.sections:
 			if s.section_id in missing_sections:
 				print(s.first_station.stop_name, ' -- ', s.second_station.stop_name)
+
+	def write_result_to_file(self):
+		f = open('result.txt', 'w')
+		simplejson.dump(self.result_list, f)
+		f.close()
 
 	def main(self):
 		# setup simulation from gtfs file
@@ -244,12 +252,14 @@ class Simulation:
 		print('Creating Train objects took {} seconds'.format(time.time() - now))
 
 		now = time.time()
-		event_queue = self.create_event_queue()
+		self.create_event_queue()
 		print('Creating event queue took {} seconds'.format(time.time() - now))
 
 		now = time.time()
 		self.run_event_queue()
 		print('Running simulation took {} seconds'.format(time.time() - now))
+
+		self.write_result_to_file()
 
 if __name__ == '__main__':
 	Simulation().main()
