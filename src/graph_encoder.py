@@ -1,5 +1,5 @@
 import json
-from .graph import Graph
+from src import Graph
 
 class GraphEncoder():
 	def create_station_dictionary(self, stations):
