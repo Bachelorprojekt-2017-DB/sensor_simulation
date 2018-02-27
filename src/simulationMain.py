@@ -3,6 +3,7 @@ import sys
 import pygtfs
 import time
 import datetime
+from graph import Graph
 
 class Event:
 	def __init__(self, iteration, sender, receiver):
@@ -111,13 +112,14 @@ class Simulation:
 					self.graph.create_station(stop_id, stop.stop_name)
 
 	def create_graph(self, schedule):
-		if os.path.isfile(self.graph_path):
+		# if os.path.isfile(self.graph_path):
+		if False:
 			self.graph = GraphDecoder().load_from_file(self.graph_path)
 		else:
 			self.graph = Graph()
 			self.create_stations(schedule.stops)
 			self.create_sections(schedule)
-			GraphEncoder().save_to_file(self.graph, self.graph_path)
+			# GraphEncoder().save_to_file(self.graph, self.graph_path)
 		print('Stations: {}, Sections: {}'.format(len(self.graph.stations), len(self.graph.sections)))
 
 	def create_trains_from_trips(self, schedule):
@@ -127,6 +129,8 @@ class Simulation:
 			for trip in routes.trips:
 				sys.stdout.write('\rCreating Trains: Route {} of {}'.format(n, r))
 				sys.stdout.flush()
+				if len(trip.stop_times) < 2:
+					continue
 				self.trains.append(Train(trip))
 				for stop_time in trip.stop_times:
 					if self.earliest_time > stop_time.arrival_time:
