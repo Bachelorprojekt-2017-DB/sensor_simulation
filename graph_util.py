@@ -12,11 +12,17 @@ if __name__ == "__main__":
 	z = open('result2.txt', 'w')
 	simplejson.dump(array, z)
 	z.close()
-	x_axis = [0]*(len(array))
+	x_axis = [0]*len(array)
 	for i in range(len(array)):
-		x_axis[i] = i/len(array)*100
+		x_axis[i] = i/(60*24.0)
 	plt.plot(x_axis,array)
-	plt.axis([0,100,0,764])
+
 	plt.ylabel('collected station data')
-	plt.xlabel('time in % of month')
-	plt.savefig('result.png')
+	plt.xlabel('days')
+	axes = plt.gca()
+	axes.set_ylim([0,1128])
+	axes.set_yticks(list(plt.yticks()[0]) + [max(array)])
+
+	axes.text(-1, max(array), '< max', verticalalignment='center', horizontalalignment='left')
+
+	plt.savefig('result.png', dpi = 300)
