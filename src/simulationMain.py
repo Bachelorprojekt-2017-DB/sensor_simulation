@@ -226,11 +226,13 @@ class Simulation:
 			collected_sections.append(key)
 		collected_sections = set(collected_sections)
 
+		"""
 		missing_sections = graph_sections - collected_sections
 		missing_sections = list(missing_sections)
 		for s in self.graph.sections:
 			if s.section_id in missing_sections:
 				print(s.first_station.stop_name, ' -- ', s.second_station.stop_name)
+		"""
 
 	def write_result_to_file(self):
 		f = open('result.txt', 'w')
