@@ -213,13 +213,15 @@ class Simulation:
 			destination_station = self.find_station(destination)
 			print(destination_station)
 
+		i = 0
 		for event_list in self.event_queue:
 			if event_list == []:
+				self.print_progress(destination_station, i)
 				continue
-			time = event_list[0].iteration
 			for event in event_list:
 				event.call()
-			self.print_progress(destination_station, time)
+			self.print_progress(destination_station, i)
+			i = i + 1
 
 		graph_sections = set([x.section_id for x in self.graph.sections])
 		collected_sections = []
