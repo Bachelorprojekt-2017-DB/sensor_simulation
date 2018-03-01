@@ -8,7 +8,11 @@
 - install [python3](https://www.python.org)
 - install dependencies
   - ``pip3 install .``
-- execute main ``python3 src/simulationMain.py``
+- execute main: ``python3 src/simulationMain.py``
+- visualize results: ``python3 graph_util.py``
+
+output example:
+![Example output](/result.png "Example output")
 
 ## Unit Testing:
 
