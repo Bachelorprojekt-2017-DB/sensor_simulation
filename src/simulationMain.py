@@ -4,7 +4,7 @@ import pygtfs
 import time
 import datetime
 import simplejson
-from graph import Graph
+from src import Graph
 
 class Event:
 	def __init__(self, iteration, sender, receiver):
@@ -73,8 +73,8 @@ class Simulation:
 		self.latest_time = datetime.timedelta.min
 		self.schedule = []
 
-	def time_to_iteration(self, time):
-		seconds = (time - self.earliest_time).total_seconds()
+	def timedelta_to_minutes(self, timediff):
+		seconds = timediff.total_seconds()
 		return int(seconds / 60)
 
 	def create_database_from_gtfs(self, path):
@@ -142,7 +142,7 @@ class Simulation:
 		print()
 
 	def create_event(self, time, sender, receiver):
-		iteration = self.time_to_iteration(time)
+		iteration = self.timedelta_to_minutes(time)
 		if iteration < 0:
 			return None
 		event = Event(iteration, sender, receiver)
@@ -168,7 +168,7 @@ class Simulation:
 		end_date = datetime.date(2017, 2, 1)
 		self.latest_time = end_date
 
-		total_iterations = self.time_to_iteration(end_date + datetime.timedelta(days=2)) # add one more day to be sure
+		total_iterations = self.timedelta_to_minutes((end_date + datetime.timedelta(days=2)) - self.earliest_time) # add one more day to be sure
 		print("Simulation will have {} steps".format(total_iterations))
 		self.result_list = [0] * total_iterations
 		self.event_queue = [[] for n in range(total_iterations)]
@@ -181,6 +181,8 @@ class Simulation:
 		active_services = self.schedule.session.query(pygtfs.gtfs_entities.ServiceException).filter(pygtfs.gtfs_entities.ServiceException.date == date).all()
 		active_services_ids = [x.id for x in active_services]
 		trains_on_day = [x for x in self.trains if x.trip.service_id in active_services_ids]
+
+		date = date - self.earliest_time
 
 		for train in trains_on_day:
 			if train == None:
@@ -195,7 +197,7 @@ class Simulation:
 				first_station = self.graph.get_station_by_id(on_section[0][1])
 				second_station = self.graph.get_station_by_id(on_section[1][1])
 				section = self.graph.get_section(first_station, second_station)
-				time = on_section[0][0] + datetime.timedelta(minutes = 1) + date
+				time = on_section[0][0] + date + datetime.timedelta(minutes=1)
 				self.create_event(time, train, section)
 				self.create_event(time, section, train)
 
@@ -218,7 +220,6 @@ class Simulation:
 			for event in event_list:
 				event.call()
 			self.print_progress(destination_station, time)
-		self.print_progress(destination_station, self.time_to_iteration(self.latest_time))
 
 		graph_sections = set([x.section_id for x in self.graph.sections])
 		collected_sections = []

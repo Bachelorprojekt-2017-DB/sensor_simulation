@@ -23,6 +23,6 @@ if __name__ == "__main__":
 	axes.set_ylim([0,1128])
 	axes.set_yticks(list(plt.yticks()[0]) + [max(array)])
 
-	axes.text(-1, max(array), '< max', verticalalignment='center', horizontalalignment='left')
+	axes.text(0, max(array), '< max', verticalalignment='center', horizontalalignment='left')
 
 	plt.savefig('result.png', dpi = 300)

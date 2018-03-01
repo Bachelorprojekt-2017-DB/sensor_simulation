@@ -10,5 +10,4 @@ class SimulationTestCase(unittest.TestCase):
 
 	def test_simulation_timestep_calculation(self):
 		simulation = Simulation()
-		simulation.earliest_time = datetime.timedelta(0)
-		self.assertEqual(simulation.time_to_iteration(datetime.timedelta(days = 1)), 1440)
+		self.assertEqual(simulation.timedelta_to_minutes(datetime.timedelta(minutes = 42)), 42)
